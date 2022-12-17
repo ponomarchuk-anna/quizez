@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-4"></div>
+    <div class="col-4">
+        <h4 align="center">Статистика</h4>
+        <hr>
+        {% for k, v in res.items() %}
+            <h5 align="center">{{ k }}</h5>
+            {% for k2, v2 in v.items() %}
+                <h6 align="center">{{ k2 }}: {{ v2 }}</h6>
+            {% endfor %}
+            <hr>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

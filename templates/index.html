@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-4"></div>
+    <div class="col-4">
+        <h4 align="center">{{ title }}</h4>
+        <hr>
+        {% if quizes %}
+            {% for q in quizes %}
+                {% if title == 'Мои квизы' %}
+                    <h5 align="center"><a href="{{ url_for('stats', quiz_id=q.id) }}">{{q.name}}</a>     <a href="{{ url_for('del_quiz', quiz_id=q.id) }}"><img width="20" height="20" src="/static/images/del.png"></h5>
+                {% else %}
+                    <h5 align="center"><a href="{{ url_for('show_quiz', quiz_id=q.id) }}">{{q.name}}</a></h5>
+                {% endif %}
+                <hr>
+            {% endfor %}
+        {% else %}
+            <h5 align="center">Вы еще не <a href="{{ url_for('add_quiz') }}">добавили</a> ни одного квиза</h5>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

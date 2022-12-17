@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-4"></div>
+    <div class="col-3">
+        <form action="{{ url_for('add_quiz') }}" method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.name.label }}<br>{{ form.name() }}
+            </div>
+            <div class="form-group">
+                {{ form.counter.label }}<br>{{ form.counter() }}
+            </div>
+            <p></p>
+            {{ form.submit }}
+        </form>
+    </div>
+</div>
+{% if counter %}
+    <div class="row">
+    <div class="col-4"></div>
+    <div class="col-3">
+        <br>
+        <form method="post" action="{{ url_for('save_quiz') }}"> 
+            {% for q in range(1, counter + 1) %}
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text" id="inputGroup-sizing-sm">Вопрос</span>
+                    <input name="q{{ q }}" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                </div>
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text" id="inputGroup-sizing-sm">Ответы (через ;)</span>
+                    <input name="a{{ q }}" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                </div>
+                <br>
+            {% endfor %}
+        <button type="submit" class="btn btn-success">Отправить</button>
+        </form>
+    </div>
+{% endif %}
+{% endblock %}

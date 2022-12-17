@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-4"></div>
+    <div class="col-4">
+        <h3>{{ quiz.name }}</h3>
+        {% if current_user.is_anonymous %}
+            <p><i>Вам нужно авторизоваться, чтобы пройти квиз</i></p>
+        {% endif %}
+        <form action="{{ url_for('save_answers') }}" method="post">
+            {% for k, v in quiz.data.items() %}
+                <h5>{{ k }}</h5>
+                {% for i in v %}
+                    <div class="form-check">
+                        <input value="{{ i|replace(" ", "_") }}" required class="form-check-input" type="radio" name={{ k|replace(" ", "_") }} id={{ k|replace(" ", "_") }}>
+                        <label class="form-check-label" for={{ k|replace(" ", "_") }}>
+                        {{ i }}
+                        </label>
+                    </div>
+                {% endfor %}
+                <br>
+            {% endfor %}
+            {% if current_user.is_authenticated %}
+                <button type="submit" class='btn btn-success'>Отправить</button>
+            {% endif %}
+        </form>
+        <br>
+    </div>
+</div>
+{% endblock %}

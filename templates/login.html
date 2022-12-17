@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-4"></div>
+    <div class="col-3">
+        <form action="{{ url_for('login_process') }}" method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.username.label }}<br>{{ form.username() }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label }}<br>{{ form.password() }}
+            </div>
+            <div class="form-group">
+                {{ form.remember_me() }}
+                {{ form.remember_me.label }}
+            </div>
+            <p></p>
+            {{ form.submit }}
+        </form>
+    <br>
+    <p>Нет аккаунта? <a href="{{ url_for('reg') }}">Зарегистрируйтесь</a></p>
+    </div>
+</div>
+{% endblock %}
