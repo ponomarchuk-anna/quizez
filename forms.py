@@ -14,6 +14,10 @@ class QuizForm(FlaskForm):
         validators=[DataRequired()],
         render_kw={'class': 'form-control'},
         )
+    access = StringField(
+        'Для кого этот тест? (оставьте пустым, если для всех)',
+        render_kw={'class': 'form-control', 'placeholder': 'юзернеймы через ;'},
+        )
     submit = SubmitField(
         'Далее',
         render_kw={'class': 'btn btn-success'},

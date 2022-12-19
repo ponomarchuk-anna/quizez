@@ -3,6 +3,7 @@ from forms import LoginForm, RegForm, QuizForm
 from model import db, Answer, Quiz, User
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_login import LoginManager, current_user, login_user, logout_user
+import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -26,7 +27,6 @@ def index():
     if user_id:
         title = 'Мои квизы'
         quizes = Quiz.query.filter(Quiz.user_id == user_id).all()
-        print(len(quizes))
     else:
         title = 'Квизы'
         quizes = Quiz.query.all()
@@ -114,12 +114,18 @@ def add_quiz():
                 form=form,
             )
         else:
+            session['counter'] = int(form.counter.data)
             session['name'] = form.name.data
+            if len(form.access.data) > 0:
+                session['access'] = form.access.data.split(';')
+            else:
+                session['access'] = []
+            # проверка уникальности имени квиза
             return render_template(
                 'add_quiz.html',
                 title=title,
                 form=form,
-                counter=int(form.counter.data),
+                counter=session['counter'],
             )
     return redirect(url_for('login'))
 
@@ -128,14 +134,18 @@ def add_quiz():
 def save_quiz():
     questions = request.form
     res = {}
-    for i in range(1, len(questions) // 2 + 1):
+    print(len(questions))
+    for i in range(1, session['counter'] + 1):
         quest = questions[f'q{i}'].strip().capitalize()
         answers = questions[f'a{i}'].split(';')
-        answers = [a.strip().capitalize() for a in answers]
+        req = questions.get(f'r{i}', 'off')
+        many = questions.get(f'm{i}', 'off')
+        answers = [req, many] + [a.strip().capitalize() for a in answers]
         res[quest] = answers
     new_quiz = Quiz(
         name=session['name'],
         data=res,
+        access=session['access'],
         user_id=current_user.id,
         )
     db.session.add(new_quiz)
@@ -146,9 +156,12 @@ def save_quiz():
 @app.route('/quiz/<int:quiz_id>')
 def show_quiz(quiz_id):
     quiz = Quiz.query.get(quiz_id)
-    return render_template(
-        'quiz.html', quiz=quiz,
-        )
+    if not quiz.access or current_user.username in quiz.access or current_user.id == quiz.user_id:
+        return render_template(
+            'quiz.html', quiz=quiz,
+            )
+    flash('У вас нет доступа к этому опросу :(')
+    return redirect(url_for('index'))
 
 
 @app.route('/save-answers', methods=['post'])
@@ -156,7 +169,11 @@ def save_answers():
     quiz_id = request.referrer.split('/')[-1]
     res = {}
     for k, v in request.form.items():
-        res[k.replace('_', ' ')] = v
+        if k[-1].isdigit():
+            k = '_'.join(k.split('_')[:-1])
+        k = k.replace('_', ' ')
+        res.setdefault(k, [])
+        res[k].append(v)
     new_answers = Answer(
         answers=res,
         user_id=current_user.id,
@@ -175,11 +192,23 @@ def stats(quiz_id):
     for a in answers:
         for k, v in a[0].items():
             res.setdefault(k, [])
-            res[k].append(v)
+            for i in v:
+                res[k].append(i)
     res = {k: Counter(v) for k, v in res.items()}
+
+    img = {}
+    for k, v in res.items():
+        img.setdefault(k, [])
+        for k2, v2 in v.items():
+            img[k] += [k2] * v2
+    for k, v in img.items():
+        plt.hist(v).savefig(f'./static/images/{k}.png')
+        img[k] = f'/static/images/{k}.png'
+    print(img)
     return render_template(
         'stats.html',
         res=res,
+        img=img,
     )
 
 

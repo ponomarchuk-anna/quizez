@@ -7,8 +7,9 @@ db = SQLAlchemy()
 
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False) # unique = True
+    name = db.Column(db.String, nullable=False)  # unique = True
     data = db.Column(db.PickleType, nullable=False)
+    access = db.Column(db.PickleType)
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('user.id', ondelete='CASCADE'),
@@ -19,7 +20,6 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
-
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
